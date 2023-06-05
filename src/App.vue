@@ -114,7 +114,7 @@ const analisador_semantico = () => {
             if (/^[a-zA-Z]$/.test(tokens[1])) { // O valor atribuido é uma outra variável?
               for (var escopo_2 of stack.value.slice().reverse()) { // Procurar variável2 nos escopos (interno -> externo)
                 if (escopo_2.vars[tokens[1]]) { // Achou a variável2 no escopo
-                  if (escopo.vars[tokens[0]]['tipo'] == escopo_2.vars[tokens[1]]['tipo']) {
+                  if (escopo.vars[tokens[0]]['tipo'] == escopo_2.vars[tokens[1]]['tipo']) { // se ambas as variáveis forem do mesmo tipo:
                     escopo.vars[tokens[0]]['valor'] = escopo_2.vars[tokens[1]]['valor'] // O valor da variável1 recebe o valor da variável2
                   } else {
                     push_responses(6, index)
@@ -129,22 +129,23 @@ const analisador_semantico = () => {
 
             } else { // Se a atribuição for um dado, receber esse dado na variável
 
-              if (/^[+\-]?\d+(\.\d+)?$/.test(tokens[1])) attr_type = "NUMERO"
-              else if (/^[+\-]?\d+(\.\d+)?$/.test(tokens[1])) attr_type = "CADEIA"
+              if (/^[+\-]?\d+(\.\d+)?$/.test(tokens[1])) attr_type = "NUMERO" // seta o tipo da atribuição como NUMERO
+              else if (/^[+\-]?\d+(\.\d+)?$/.test(tokens[1])) attr_type = "CADEIA" // Seta o tipo da atribuição como CADEIA
 
-              if (escopo.vars[tokens[0]].tipo != attr_type) push_responses(6, index)
-              else escopo.vars[tokens[0]].valor = tokens[1]
+              if (escopo.vars[tokens[0]].tipo != attr_type) push_responses(6, index) // verifica se a tribuição édo mesmo tipo que a variável
+              else escopo.vars[tokens[0]].valor = tokens[1] // faz a atribuição
             }
             flag = 1 // marca variavel1 como achada
             break // sair da procura de escopos da variável1
           }
         }
-        if (!flag) push_responses(8, index, tokens[0])
+        // Se não achou a variável1: ERRO!
+        if (!flag) push_responses(7, index, tokens[0])
     }
   })
 
   // Caso ainda haja escopos na pilha após finalização da análise:
-  if (stack.value.length) push_responses(9)
+  if (stack.value.length) push_responses(8)
 
 }
 
@@ -158,7 +159,6 @@ const push_responses = (id, index = null, token = null, escopo = null, top = nul
     case 5: responses.value.push("Erro na linha " + (index + 1) + ": O FIM " + token + " não é o fechamento do escopo do BLOCO " + top.iden); break
     case 6: responses.value.push("Erro na linha " + (index + 1) + ": A variável não é do mesmo tipo que o valor atribuído"); break
     case 7: responses.value.push("Erro na linha " + (index + 1) + ": Variável '" + token + "' não foi declarada!"); break
-    case 8: responses.value.push("Erro na linha " + (index + 1) + ": Variável '" + token + "' não foi declarada!"); break
     case 9: responses.value.push("Erro: Há escopos que não foram fechados!"); break
   }
 }
